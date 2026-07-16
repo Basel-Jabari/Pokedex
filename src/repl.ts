@@ -1,3 +1,5 @@
+import { createInterface } from "node:readline";
+
 export function cleanInput(input: string): string[] {
     let inputArray = input.split(" ");
     let toRemove: number[] = [];
@@ -19,4 +21,24 @@ export function cleanInput(input: string): string[] {
     }
 
     return newArray;
+}
+
+export function startREPL() {
+    const rl = createInterface({
+        input: process.stdin,
+        output: process.stdout,
+        prompt: "Pokedex > ",
+    });
+
+    rl.prompt();
+    rl.on("line", (line: string) => {
+        const words = cleanInput(line);
+
+        if (words.length == 0) {
+            rl.prompt();
+        } else {
+            console.log(`Your command was: ${words[0]}`);
+            rl.prompt();
+        }
+    });
 }
