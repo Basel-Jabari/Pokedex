@@ -1,4 +1,6 @@
 import { createInterface } from "node:readline";
+import { getCommands } from "./command.js";
+import { CLICommand } from "./command.js";
 
 export function cleanInput(input: string): string[] {
     let inputArray = input.split(" ");
@@ -37,7 +39,12 @@ export function startREPL() {
         if (words.length == 0) {
             rl.prompt();
         } else {
-            console.log(`Your command was: ${words[0]}`);
+            if (words[0] in getCommands()) {
+                getCommands()[words[0]].callback({});
+            } else {
+                console.log("Unknown command");
+            }
+            
             rl.prompt();
         }
     });
