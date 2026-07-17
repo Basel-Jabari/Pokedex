@@ -60,7 +60,23 @@ export class PokeAPI {
         const response = await fetch(fullURL);
         const data = await response.json();
 
-        const pokemon: Pokemon = { name: pokemonName, base_experience: data.base_experience };
+        let pokemon: Pokemon = {
+            name: pokemonName,
+            height: data.height,
+            weight: data.weight,
+            stats: {},
+            types: [],
+            base_experience: data.base_experience
+        };
+
+        for (const stat of data.stats) {
+            pokemon.stats[stat.stat.name] = stat.base_stat;
+        }
+
+        for (const type of data.types) {
+            pokemon.types.push(type.type.name);
+        }
+        
         this.#cache.add<Pokemon>(fullURL, pokemon);
         return pokemon;
     }
@@ -78,6 +94,10 @@ export type Location = {
 
 export type Pokemon = {
     name: string;
+    height: number;
+    weight: number;
+    stats: Record<string, number>;
+    types: string[];
     base_experience: number;
 };
 
