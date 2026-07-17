@@ -76,7 +76,7 @@ export class PokeAPI {
         for (const type of data.types) {
             pokemon.types.push(type.type.name);
         }
-        
+
         this.#cache.add<Pokemon>(fullURL, pokemon);
         return pokemon;
     }
