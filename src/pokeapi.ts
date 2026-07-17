@@ -2,6 +2,7 @@ import { Cache } from "./pokecache.js";
 
 export class PokeAPI {
     private static readonly baseURL = "https://pokeapi.co/api/v2";
+    user_pokedex: Pokedex = { pokemons: {} };
     #cache = new Cache(1000 * 60 * 5);
 
     constructor(interval?: number) {
@@ -40,12 +41,28 @@ export class PokeAPI {
         const response = await fetch(fullURL);
         const data = await response.json();
 
-        let pokemon_names: string[] = [];
+        const location: Location = { pokemon_names: [] };
         for (const encounter of data.pokemon_encounters) {
-            pokemon_names.push(encounter.pokemon.name);
+            location.pokemon_names.push(encounter.pokemon.name);
         }
 
-        return { pokemon_names: pokemon_names };
+        this.#cache.add<Location>(fullURL, location);
+        return location;
+    }
+
+    async fetchPokemon(pokemonName: string): Promise<Pokemon> {
+        const fullURL = `${PokeAPI.baseURL}/pokemon/${pokemonName}`;
+        const cached = this.#cache.get<Pokemon>(fullURL);
+        if (cached != undefined) {
+            return cached;
+        }
+
+        const response = await fetch(fullURL);
+        const data = await response.json();
+
+        const pokemon: Pokemon = { name: pokemonName, base_experience: data.base_experience };
+        this.#cache.add<Pokemon>(fullURL, pokemon);
+        return pokemon;
     }
 }
 
@@ -57,4 +74,13 @@ export type ShallowLocations = {
 
 export type Location = {
     pokemon_names: string[];
+};
+
+export type Pokemon = {
+    name: string;
+    base_experience: number;
+};
+
+export type Pokedex = {
+    pokemons: Record<string, Pokemon>;
 };
