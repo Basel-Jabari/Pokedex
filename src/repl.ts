@@ -41,7 +41,7 @@ export async function startREPL(state: State) {
         }
 
         try {
-            await command.callback(state);
+            await command.callback(state, ...words.slice(1));
         } catch (err) {
             console.log(err);
         }
